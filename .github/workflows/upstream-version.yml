@@ -6,7 +6,7 @@ on:
     - main
 env:
   base_branch: main
-  upstream_branch: v2
+  upstream_branch: v1
 jobs:
   reset:
     name: Reset version branch
