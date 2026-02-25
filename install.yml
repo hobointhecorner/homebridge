@@ -13,7 +13,7 @@
     # SET THESE IN inventory/group_vars/secrets.yml
     # time_zone:
     # nfs_backup_address:
-    # nfs_backup_device:
+    # nfs_backup_device: # ':/[volumeN]/[dataset]'
     # certbot_cert_domain:
     # certbot_cert_name:
     # certbot_email:
@@ -66,7 +66,7 @@
           homebridge:
             image: homebridge/homebridge:{{ homebridge_version }}
             restart: always
-            network_mode: host # You should probably run this on a dedicated host, anyway! Leave me alone!
+            network_mode: host # You should probably run this on a dedicated host anyway! Leave me alone!
             volumes:
               - "{{ homebridge_config_dir }}:/homebridge"
               - "{{ homebridge_ssl_dir }}:/ssl/"
@@ -88,8 +88,8 @@
       awscli_config_dir: "{{ homebridge_ssl_dir }}/.aws"
       awscli_config_owner: certbot
       awscli_config_group: certbot
-      awscli_config_dir_mode: "750"
-      awscli_config_file_mode: "640"
+      awscli_config_dir_mode: "710"
+      awscli_config_file_mode: "600"
       awscli_config_become: true
 
     - role: hobo.certbot.v2
