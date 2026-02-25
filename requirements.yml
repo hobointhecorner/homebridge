@@ -1,12 +1,15 @@
 ---
+collections:
+  - name: community.docker
+
 roles:
-  - src: git+git@github.com:hobointhecorner/Hobo.Ansible.Common.git
+  - src: git+https://github.com/hobointhecorner/Hobo.Ansible.Common.git
     version: v1
     name: hobo.common
 
   - src: git+https://github.com/hobointhecorner/hobo.ansible.service_user.git
     version: v1
-    name: hobo.service_user
+    name: hobo.service-user
 
   - src: git+https://github.com/hobointhecorner/Hobo.Ansible.Docker.git
     version: v2
@@ -23,7 +26,3 @@ roles:
   - src: git+https://github.com/hobointhecorner/hobo.ansible.certbot.git
     version: v2
     name: hobo.certbot.v2
-
-collections:
-  - name: community.general
-  - name: community.docker

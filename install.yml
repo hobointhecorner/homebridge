@@ -42,7 +42,7 @@
   roles:
     - role: hobo.common
     - role: hobo.docker
-    - role: hobo.service_user
+    - role: hobo.service-user
       service_user_name: certbot
       service_user_additional_groups:
         - docker
