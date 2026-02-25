@@ -1,0 +1,29 @@
+---
+roles:
+  - src: git+git@github.com:hobointhecorner/Hobo.Ansible.Common.git
+    version: v1
+    name: hobo.common
+
+  - src: git+https://github.com/hobointhecorner/hobo.ansible.service_user.git
+    version: v1
+    name: hobo.service_user
+
+  - src: git+https://github.com/hobointhecorner/Hobo.Ansible.Docker.git
+    version: v2
+    name: hobo.docker
+
+  - src: git+https://github.com/hobointhecorner/hobo.ansible.docker-compose-systemd.git
+    version: v1
+    name: hobo.docker-service
+
+  - src: git+https://github.com/hobointhecorner/Hobo.Ansible.AwsCliConfigurationFile.git
+    version: v1
+    name: hobo.awscliconfig
+
+  - src: git+https://github.com/hobointhecorner/hobo.ansible.certbot.git
+    version: v2
+    name: hobo.certbot.v2
+
+collections:
+  - name: community.general
+  - name: community.docker

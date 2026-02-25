@@ -1,0 +1,101 @@
+---
+- name: Install homebridge
+  hosts: all
+  vars:
+    homebridge_service_dest: /srv
+    homebridge_version: latest
+
+    # Role vars
+    # upgrade_software: true # Tells hobo.common to apt upgrade
+    # certbot_request_cert: true # Set to true on first run
+    # certbot_request_additional_parameters: --staging # Uncomment when testing to prevent hitting domain limits
+
+    # SET THESE IN inventory/group_vars/secrets.yml
+    # time_zone:
+    # nfs_backup_address:
+    # nfs_backup_device:
+    # certbot_cert_domain:
+    # certbot_cert_name:
+    # certbot_email:
+    # awscli_config_profiles:
+    #   - name: default
+    #     region:
+    #     aws_access_key_id:
+    #     aws_secret_access_key:
+
+  pre_tasks:
+    - name: Set facts
+      ansible.builtin.set_fact:
+        homebridge_config_dir: "{{ homebridge_service_dest }}/homebridge/config"
+        homebridge_ssl_dir: "{{ homebridge_service_dest }}/homebridge/ssl"
+
+    - name: Ensure ssl group
+      become: true
+      ansible.builtin.group:
+        name: ssl
+
+    - name: Ensure nfs present
+      become: true
+      ansible.builtin.package:
+        name: nfs-common
+
+  roles:
+    - role: hobo.common
+    - role: hobo.docker
+    - role: hobo.service_user
+      service_user_name: certbot
+      service_user_additional_groups:
+        - docker
+        - ssl
+
+    - role: hobo.docker-service
+      docker_service_name: homebridge
+      docker_service_config_dest: "{{ homebridge_service_dest }}"
+      docker_service_user_additional_groups: ['ssl']
+      docker_service_additional_directories:
+        - path: "{{ homebridge_config_dir }}"
+          owner: homebridge
+          group: homebridge
+          mode: "2750"
+        - path: "{{ homebridge_ssl_dir }}"
+          owner: certbot
+          group: ssl
+          mode: "2750"
+      docker_service_configuration:
+        services:
+          homebridge:
+            image: homebridge/homebridge:{{ homebridge_version }}
+            restart: always
+            network_mode: host # You should probably run this on a dedicated host, anyway! Leave me alone!
+            volumes:
+              - "{{ homebridge_config_dir }}:/homebridge"
+              - "{{ homebridge_ssl_dir }}:/ssl/"
+              - backup:/backup
+            logging:
+              driver: json-file
+              options:
+                max-size: "10mb"
+                max-file: "1"
+        volumes:
+          backup:
+            driver: local
+            driver_opts:
+              type: nfs
+              device: "{{ nfs_backup_device }}"
+              o: "addr={{ nfs_backup_address }},nfsvers=4.1,nolock,soft,rw"
+
+    - role: hobo.awscliconfig
+      awscli_config_dir: "{{ homebridge_ssl_dir }}/.aws"
+      awscli_config_owner: certbot
+      awscli_config_group: certbot
+      awscli_config_dir_mode: "750"
+      awscli_config_file_mode: "640"
+      awscli_config_become: true
+
+    - role: hobo.certbot.v2
+      certbot_root_dir: "{{ homebridge_ssl_dir }}"
+      certbot_container_image: certbot/dns-route53:latest
+      certbot_user: certbot
+      certbot_group: ssl
+      certbot_additional_volumes:
+        - "{{ homebridge_ssl_dir }}/.aws:/root/.aws:ro"
