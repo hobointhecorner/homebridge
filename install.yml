@@ -52,6 +52,7 @@
       docker_service_name: homebridge
       docker_service_config_dest: "{{ homebridge_service_dest }}"
       docker_service_user_additional_groups: ['ssl']
+      docker_service_restart_cron_expr: 0 4 * * 0
       docker_service_additional_directories:
         - path: "{{ homebridge_config_dir }}"
           owner: homebridge
@@ -65,6 +66,7 @@
         services:
           homebridge:
             image: homebridge/homebridge:{{ homebridge_version }}
+            pull_policy: daily
             restart: always
             network_mode: host # You should probably run this on a dedicated host anyway! Leave me alone!
             volumes:
